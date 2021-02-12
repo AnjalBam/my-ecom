@@ -5,7 +5,10 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .products import products
+from .models import Product
+from .serializers import ProductSerializer
 # Create your views here.
+
 
 @api_view(['GET'])
 def get_routes(request):
@@ -25,18 +28,18 @@ def get_routes(request):
 
     ]
     return Response(routes)
-    
+
 
 @api_view(['GET'])
 def get_products(request):
-    return Response(products)
+    products = Product.objects.all()
+    serializers = ProductSerializer(products, many=True)
+    return Response(serializers.data)
 
 
 @api_view(['GET'])
 def get_product(request, pk):
-    product = None
-    for i in products:
-        if i['_id'] == pk:
-            product = i
-            return Response(product, status=status.HTTP_200_OK)
-    return Response({'message': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+    product = Product.objects.get(pk=pk)
+    seriaizer = ProductSerializer(product)
+
+    return Response(seriaizer.data, status=status.HTTP_200_OK)
